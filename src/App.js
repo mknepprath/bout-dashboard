@@ -85,9 +85,6 @@ class App extends Component {
         <p className='App-intro'>
           Time to battle!
         </p>
-        {
-
-        }
         <button onClick={this.attack} disabled={this.state.turn !== 'p1'}>Player 1 ({this.state['p1'].health})</button>
         <button onClick={this.attack} disabled={this.state.turn !== 'p2'}>Player 2 ({this.state['p2'].health})</button>
       </div>
