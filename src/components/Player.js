@@ -8,7 +8,7 @@ class Player extends Component {
       <div style={{width: '50%', display: 'inline-block'}}>
         <p>Player {id} - {weapon} ({health})</p>
         <button
-          onClick={onClick}
+          onClick={turn ? onClick : null}
           disabled={!turn}>
           {itemData[weapon].move}
         </button>

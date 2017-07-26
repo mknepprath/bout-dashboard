@@ -14,6 +14,17 @@ class App extends Component {
         p1: boutNo,
         p2: boutNo + 1
       }
+      /*
+      Perhaps should be...
+      const nextBout = {
+        id: 'bout-' + boutNo + '-' + (boutNo + 1),
+        players: [
+          boutNo,
+          boutNo + 1
+        ]
+      }
+      ...so players can be mapped out.
+      */
 
       // Add new bout id to bouts in state
       let nextBouts = [...this.state.bouts]
