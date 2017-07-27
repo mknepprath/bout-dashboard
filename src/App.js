@@ -8,23 +8,14 @@ class App extends Component {
     this.state = {bouts: []}
     this.addBout = () => {
       // Create dummy bout id
-      const boutNo = this.state.bouts.length * 2
+      const playerId = this.state.bouts.length * 2
       const nextBout = {
-        id: 'bout-' + boutNo + '-' + (boutNo + 1),
-        p1: boutNo,
-        p2: boutNo + 1
-      }
-      /*
-      Perhaps should be...
-      const nextBout = {
-        id: 'bout-' + boutNo + '-' + (boutNo + 1),
+        id: 'bout-' + playerId + '-' + (playerId + 1),
         players: [
-          boutNo,
-          boutNo + 1
+          playerId,
+          playerId + 1
         ]
       }
-      ...so players can be mapped out.
-      */
 
       // Add new bout id to bouts in state
       let nextBouts = [...this.state.bouts]
@@ -44,14 +35,14 @@ class App extends Component {
         <p className='App-intro'>
           Time to battle!
         </p>
-        <button onClick={this.addBout}>New Bout</button>
-        {bouts.reverse().map((boutData, i) => {
+        {bouts.map((boutData, i) => {
           return (
             <Bout
               key={i}
               boutData={boutData} />
           )
         })}
+        <button onClick={this.addBout} style={{marginBottom: 10}}>New Bout</button>
       </div>
     )
   }

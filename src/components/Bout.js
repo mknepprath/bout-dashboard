@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import Player from './Player'
 import itemData from '../items'
+import {initPlayerData} from './helpers'
 import styled from 'styled-components'
 
 const BoutContainer = styled.div`
@@ -17,83 +18,69 @@ const BoutHeader = styled.div`
 class Bout extends Component {
   constructor (props) {
     super(props)
+
+    // Attack calc
     this.attack = () => {
-      // Figure out whose turn it is
-      const {p1, p2} = this.props.boutData
-      const {turn: p1Turn} = this.state[p1]
-      const turn = p1Turn ? p1 : p2
-      const nextTurn = p1Turn ? p2 : p1
-      const {weapon} = this.state[turn]
-      const {minDamage: min, maxDamage: max, accuracy} = itemData[weapon]
-      let playerState = {...this.state[turn]}
-      let nextPlayerState = {...this.state[nextTurn]}
+      const {players} = this.props.boutData
 
-      // If attack hits, update health of other player
-      if (Math.random() <= accuracy) {
-        const damage = Math.floor(Math.random() * (max - min + 1)) + min
-        nextPlayerState.health = Math.max(nextPlayerState.health - damage, 0)
-      }
+      // Init next state
+      let nextState = {}
 
-      // Update whose turn it is
-      nextPlayerState.turn = true
-      playerState.turn = false
+      // Update health and turn for each player
+      players.forEach((player, i) => {
+        const {turn, health, weapon} = this.state[player]
 
-      // Update state
-      this.setState({
-        ...this.state,
-        [turn]: playerState,
-        [nextTurn]: nextPlayerState
+        // Init damage
+        let damage = 0
+        let _health = health
+
+        // If not your turn, you're being attacked... calc damage
+        if (!turn) {
+          const {minDamage: min, maxDamage: max, accuracy} = itemData[weapon]
+          if (Math.random() <= accuracy) {
+            damage = Math.floor(Math.random() * (max - min + 1)) + min
+            _health = Math.max(health - damage, 0)
+          }
+        }
+
+        // Apply damage to health, switch turn
+        nextState[player] = {
+          ...this.state[player],
+          health: _health,
+          turn: !turn
+        }
+        if (!_health) nextState.status = 'done'
       })
+      this.setState(nextState)
     }
-    this.getWeapon = () => {
-      // Returns a random item
-      const items = Object.keys(itemData)
-      return items[Math.floor(Math.random() * (items.length))]
-    }
-    this.state = {
-      [this.props.boutData.p1]: {
-        health: 12,
-        weapon: this.getWeapon(),
-        turn: true
-      },
-      [this.props.boutData.p2]: {
-        health: 12,
-        weapon: this.getWeapon(),
-        turn: false
-      }
-    }
+
+    // TODO: Put the following in a helper
+    const {players} = this.props.boutData
+    this.state = initPlayerData(players)
   }
   componentWillReceiveProps(nextProps) {
-    const {boutData, boutData: {p1, p2}} = nextProps
+    const {boutData} = nextProps
     if (this.props.boutData !== boutData) {
-      this.setState({
-        [p1]: {
-          health: 12,
-          weapon: this.getWeapon(),
-          turn: true
-        },
-        [p2]: {
-          health: 12,
-          weapon: this.getWeapon(),
-          turn: false
-        }
-      })
+      this.setState(initPlayerData(boutData.players))
     }
   }
   render () {
-    const {boutData: {id, p1, p2}} = this.props
+    const {boutData: {id, players}} = this.props
+    const {status} = this.state
     return (
       <BoutContainer>
-        <BoutHeader>{id}</BoutHeader>
+        <BoutHeader>{id + (status ? ' (game over)' : '')}</BoutHeader>
         <div style={{padding: 10}}>
-          <Player
-            id={p1}
-            playerData={this.state[p1]}
-            onClick={this.attack} />
-          <Player
-            id={p2}
-            playerData={this.state[p2]}
-            onClick={this.attack} />
+          {players.map((player, i) => {
+            return (
+              <Player
+                key={i}
+                id={player}
+                active={!status && this.state[player].turn}
+                playerData={this.state[player]}
+                onClick={!status ? this.attack : null} />
+              )
+          })}
         </div>
       </BoutContainer>
     )

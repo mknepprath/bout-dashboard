@@ -3,13 +3,13 @@ import itemData from '../items'
 
 class Player extends Component {
   render () {
-    const {id, playerData: {weapon, health, turn}, onClick} = this.props
+    const {id, active, playerData: {weapon, health}, onClick} = this.props
     return (
       <div style={{width: '50%', display: 'inline-block'}}>
-        <p>Player {id} - {weapon} ({health})</p>
+        <p>Player {id} - {weapon} ({health ? health : 'lost'})</p>
         <button
-          onClick={turn ? onClick : null}
-          disabled={!turn}>
+          onClick={onClick}
+          disabled={!active}>
           {itemData[weapon].move}
         </button>
       </div>
